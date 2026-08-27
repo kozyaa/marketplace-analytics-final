@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: marketplace_db
+    environment:
+      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Fodruar24533728
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase_dashboard
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: marketplace_db
+      MB_DB_PORT: 5432
+      MB_DB_HOST: postgres
+      MB_DB_USER: postgres
+      MB_DB_PASS: Fodruar24533728
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: always
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.scheduler
+    container_name: data_scheduler
+    environment:
+      DOCKER_ENV: "true"
+    depends_on:
+      - postgres
+    restart: always
+    volumes:
+      - D:/PythonProject/data:/app/data
+
+volumes:
+  postgres_data:
